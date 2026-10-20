@@ -18,6 +18,14 @@ Buffer::Buffer(const std::filesystem::path& path){
     if(lines_.empty()){
         lines_.push_back("");
     }
+    in.clear(); // 清除 eof 状态
+    in.seekg(-1, std::ios::end);
+    char lastChar;
+    if(in.get(lastChar)) {
+        endsWithNewline_ = (lastChar == '\n');
+    } else {
+        endsWithNewline_ = false; // 空文件
+    }
     modified_=false;
     //从path指向的文件构造Buffer,你需要打开文件并且把文件内容填充进Buffer,并正确初始化一些状态.
     //注意path可能为空的边界情况
@@ -109,7 +117,7 @@ void Buffer::WriteTo(const std::filesystem::path& path) const {
     if(!out) return;
     for(std::size_t i=0;i<lines_.size();i++){
         out<<lines_[i];
-        if(i+1<lines_.size())
+        if(i+1<lines_.size() || endsWithNewline_)
             out<<'\n';
     }
    //实际将缓冲区中的内容写入path指向的文件中
