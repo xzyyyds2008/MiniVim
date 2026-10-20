@@ -81,9 +81,14 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
     else{
         auto& cursor = window.GetCursor();
         cursor_row=cursor.row_-viewport.top_+1;
-        std::string line=buffer.GetLineAt(cursor.row_);
-        std::size_t col=BufferColumnToRenderColumn(line,cursor.column_);
-        cursor_column=col>=viewport.left_?col-viewport.left_+1:1;
+        if(cursor.row_<buffer.GetLineCount()){
+            const auto& line=buffer.GetLineAt(cursor.row_);
+            std::size_t col=BufferColumnToRenderColumn(line,cursor.column_);
+            cursor_column=col>=viewport.left_?col-viewport.left_+1:1;
+        } 
+        else{
+            cursor_column=1;
+        }
     }
     //计算cursor_row和cursor_column即可    
 

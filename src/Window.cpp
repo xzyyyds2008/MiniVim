@@ -10,8 +10,6 @@ namespace sjtu {
 void Window::Resize(ScreenSize terminal_size) {
     viewport_.rows_=terminal_size.rows_>1?terminal_size.rows_-1:1;
     viewport_.columns_=terminal_size.columns_>0?terminal_size.columns_:1;
-    viewport_.top_ = 0;
-    viewport_.left_ = 0;
     //底部留一行给命令或提示,其余作为正文区域;正文行数和列数都至少取1
     //修改视口即可
 }
