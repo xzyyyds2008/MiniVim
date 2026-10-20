@@ -74,10 +74,6 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
     std::size_t cursor_row{0};
     std::size_t cursor_column{0};
 
-        // 在 Renderer.cpp 里找到这附近
-    std::size_t cursor_row{0};
-    std::size_t cursor_column{0};
-
     if (state.mode_ == Mode::CommandLine) {
         cursor_row = viewport.rows_ + 1;
         cursor_column=state.command_.size()+2;
