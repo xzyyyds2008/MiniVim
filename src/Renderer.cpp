@@ -74,11 +74,21 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
     std::size_t cursor_row{0};
     std::size_t cursor_column{0};
 
-    auto& cursor = window.GetCursor();
-    cursor_row=cursor.row_-viewport.top_+1;
-    std::string line=buffer.GetLineAt(cursor.row_);
-    std::size_t col=BufferColumnToRenderColumn(line,cursor.column_);
-    cursor_column=col>=viewport.left_?col-viewport.left_+1:1;
+        // 在 Renderer.cpp 里找到这附近
+    std::size_t cursor_row{0};
+    std::size_t cursor_column{0};
+
+    if (state.mode_ == Mode::CommandLine) {
+        cursor_row = viewport.rows_ + 1;
+        cursor_column=state.command_.size()+2;
+    } 
+    else{
+        auto& cursor = window.GetCursor();
+        cursor_row=cursor.row_-viewport.top_+1;
+        std::string line=buffer.GetLineAt(cursor.row_);
+        std::size_t col=BufferColumnToRenderColumn(line,cursor.column_);
+        cursor_column=col>=viewport.left_?col-viewport.left_+1:1;
+    }
     //计算cursor_row和cursor_column即可    
 
     frame += CursorSequence(cursor_row, cursor_column);

@@ -84,7 +84,10 @@ void Window::MoveUp(const Buffer& buffer, std::size_t count) {
     cursor_.row_=cursor_.row_>=count?cursor_.row_-count:0;
     std::string line=buffer.GetLineAt(cursor_.row_);
     cursor_.column_=RenderColumnToBufferColumn(line,desired_column_);
-    if(!line.empty() && cursor_.column_>=line.size()){
+    if(line.empty()){
+        cursor_.column_=0;
+    } 
+    else if (cursor_.column_>=line.size()){
         cursor_.column_=line.size()-1;
     }
     //先算目标行,最多到第一行,再将期望的显示列换算成目标行的字符下标
