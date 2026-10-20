@@ -96,7 +96,10 @@ void Window::MoveDown(const Buffer& buffer, std::size_t count) {
     cursor_.row_=std::min(cursor_.row_+count,maxrow);
     std::string line=buffer.GetLineAt(cursor_.row_);
     cursor_.column_=RenderColumnToBufferColumn(line,desired_column_);
-    if(!line.empty() && cursor_.column_>=line.size()){
+    if(line.empty()){
+        cursor_.column_=0;
+    } 
+    else if (cursor_.column_>=line.size()){
         cursor_.column_=line.size()-1;
     }
     //先算目标行,最多到最后一行,再根据desired_screen_column_寻找目标字符
