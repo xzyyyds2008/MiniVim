@@ -109,7 +109,8 @@ void Buffer::WriteTo(const std::filesystem::path& path) const {
     if(!out) return;
     for(std::size_t i=0;i<lines_.size();i++){
         out<<lines_[i];
-        out<<'\n';
+        if(i+1<lines_.size())
+            out<<'\n';
     }
    //实际将缓冲区中的内容写入path指向的文件中
 }
