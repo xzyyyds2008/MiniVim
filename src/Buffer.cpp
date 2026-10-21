@@ -105,7 +105,7 @@ void Buffer::SaveAs(const std::filesystem::path& path) {
 
 
 void Buffer::WriteTo(const std::filesystem::path& path) const {
-    std::ofstream out(path);
+    std::ofstream out(path, std::ios::trunc); 
     if(!out) return;
     for(std::size_t i=0;i<lines_.size();i++){
         out<<lines_[i];
