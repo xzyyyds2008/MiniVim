@@ -196,25 +196,28 @@ void Editor::HandleCommandLine(KeyEvent key) {
 }
 
 void Editor::ExecuteCommandLine() {
-    std::string cmd=Trim(command_);
+    std::string cmd = Trim(command_);
     LeaveCommandLine();
-    if(cmd.empty()) return;
-    if(cmd=="wq" || cmd=="wq!" || cmd=="x"){
-        if(SaveBuffer()) running_=false;
+    if (cmd.empty()) return;
+
+    // 提取第一个空格前的命令名，完美处理 ":wq file.txt" 这种情况
+    std::string commandName = cmd;
+    std::string arg = "";
+    std::size_t spacePos = cmd.find(' ');
+    if (spacePos != std::string::npos) {
+        commandName = cmd.substr(0, spacePos);
+        arg = Trim(cmd.substr(spacePos + 1));
     }
-    else if(cmd=="q!" || cmd=="quit!"){
-        running_=false;
+
+    if (commandName == "wq" || commandName == "wq!" || commandName == "x") {
+        if (SaveBuffer(arg)) running_ = false;
+    } else if (commandName == "q!" || commandName == "quit!") {
+        running_ = false;
+    } else if (commandName == "w") { 
+        SaveBuffer(arg);
+    } else {
+        message_ = "E: unknown command: " + commandName;
     }
-    else if(cmd=="w"){
-        SaveBuffer();
-    }
-    else{
-        message_="E: unknown command: "+cmd;
-    }
-    //1. 保存去掉首尾空白后的命令(用trim),再退出命令行模式,因为退出会清空command_
-    //2. 空命令直接返回,否则按第一个空格或Tab拆成命令名和参数
-    //3. 在Basic部分中你会发现最后命令就一个命令名,直接根据要求的命令名执行
-    //4. 无法识别的命令写入message_,供下一次刷新显示
 }
 
 void Editor::LeaveCommandLine() {
