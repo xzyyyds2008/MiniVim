@@ -55,7 +55,8 @@ std::string Renderer::Render(const Buffer& buffer, const Window& window, const R
         else{
             content = "~";
         }
-        AppendClearedLine(frame, content, width, true);
+        bool is_last_row = (screen_row == viewport.rows_ - 1);
+        AppendClearedLine(frame, content, width, !is_last_row); 
        //这里是提示2中的部分
     }
 
