@@ -8,41 +8,51 @@ Buffer::Buffer(const std::filesystem::path& path){
     path_=path;
     if(path.empty()){
         lines_.push_back("");
-        endsWithNewline_ = false;
+        endsWithNewline_ = false; 
+        modified_ = false;
         return;
     }
     std::ifstream in(path);
     if (!in) {
         lines_.push_back("");
         endsWithNewline_ = false;
+        modified_ = false;
         return;
     }
+    
+    // 逐字符读取，不需要任何额外的头文件
     std::string line;
-    while(std::getline(in,line)){
+    char c;
+    bool lastWasNewline = false;
+    
+    while (in.get(c)) {
+        if (c == '\n') {
+            lines_.push_back(line);
+            line.clear();
+            lastWasNewline = true;
+        } else {
+            line.push_back(c);
+            lastWasNewline = false;
+        }
+    }
+    
+    // 如果最后一行有残留字符（原文件末尾没有换行符）
+    if (!line.empty() || !lastWasNewline) {
         lines_.push_back(line);
     }
-    if(lines_.empty()){
+    
+    if (lines_.empty()) {
         lines_.push_back("");
     }
     
-    // 精准探测原文件最后一个字节
-    in.clear();
-    in.seekg(0, std::ios::end);
-    if (in.tellg() > 0) {
-        in.seekg(-1, std::ios::end);
-        char lastChar;
-        in.get(lastChar);
-        endsWithNewline_ = (lastChar == '\n');
-    } else {
-        endsWithNewline_ = false;
-    }
+    endsWithNewline_ = lastWasNewline;
     modified_ = false;
     //从path指向的文件构造Buffer,你需要打开文件并且把文件内容填充进Buffer,并正确初始化一些状态.
     //注意path可能为空的边界情况
 }
 
 Buffer::Buffer(std::vector<std::string> lines, std::filesystem::path path) {
-    for(int i=0;i<lines.size();i++){
+    for(size_t i=0;i<lines.size();i++){
         lines_.push_back(lines[i]);
     }
     path_=path;
@@ -127,7 +137,10 @@ void Buffer::WriteTo(const std::filesystem::path& path) const {
     if(!out) return;
     for(std::size_t i=0;i<lines_.size();i++){
         out<<lines_[i];
-        if (i + 1 < lines_.size() || endsWithNewline_) {
+        
+        // 如果这不是最后一行，必定加换行
+        // 如果是最后一行，只要原文件有换行，或者你修改过文件，也加换行
+        if (i + 1 < lines_.size() || endsWithNewline_ || modified_) {
             out << '\n';
         }
     }
