@@ -8,9 +8,15 @@ Buffer::Buffer(const std::filesystem::path& path){
     path_=path;
     if(path.empty()){
         lines_.push_back("");
+        endsWithNewline_ = false;
         return;
     }
     std::ifstream in(path);
+    if (!in) {
+        lines_.push_back("");
+        endsWithNewline_ = false;
+        return;
+    }
     std::string line;
     while(std::getline(in,line)){
         lines_.push_back(line);
@@ -18,7 +24,19 @@ Buffer::Buffer(const std::filesystem::path& path){
     if(lines_.empty()){
         lines_.push_back("");
     }
-    modified_=false;
+    
+    // 精准探测原文件最后一个字节
+    in.clear();
+    in.seekg(0, std::ios::end);
+    if (in.tellg() > 0) {
+        in.seekg(-1, std::ios::end);
+        char lastChar;
+        in.get(lastChar);
+        endsWithNewline_ = (lastChar == '\n');
+    } else {
+        endsWithNewline_ = false;
+    }
+    modified_ = false;
     //从path指向的文件构造Buffer,你需要打开文件并且把文件内容填充进Buffer,并正确初始化一些状态.
     //注意path可能为空的边界情况
 }
@@ -109,9 +127,10 @@ void Buffer::WriteTo(const std::filesystem::path& path) const {
     if(!out) return;
     for(std::size_t i=0;i<lines_.size();i++){
         out<<lines_[i];
-        out<<'\n'; // 直接每行都加 \n，最后一行也加
+        if (i + 1 < lines_.size() || endsWithNewline_) {
+            out << '\n';
+        }
     }
-   //实际将缓冲区中的内容写入path指向的文件中
 }
 
 } // namespace sjtu
